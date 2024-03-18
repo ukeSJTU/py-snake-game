@@ -51,6 +51,12 @@ class Snake:
     def get_head_pos(self: "Snake") -> Positon:
         return self.head_pos
 
+    def grow(self: "Snake", color: Color = WHITE, width: int = 10, height: int = 10):
+        new_snake_tail = Block(
+            pos=self.body[-1].pos, color=color, width=width, height=height
+        )
+        self.body.append(new_snake_tail)
+
 
 class Food(Block):
     def __init__(
@@ -66,3 +72,6 @@ class Food(Block):
 
     def get_pos(self: "Food") -> Positon:
         return self.pos
+
+    def get_score(self: "Food") -> int:
+        return self.score

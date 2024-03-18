@@ -154,6 +154,11 @@ while running:
     food_pos = food.get_pos()
     snake_head_pos = snake.get_head_pos()
 
+    if snake_head_pos == food_pos:
+        score += food.get_score()
+        new_color = food.color
+        snake.grow(color=new_color)
+
     # update screen and draw the snake, food and background
     screen.fill(BLACK)
     draw(surface=screen, content=snake)
