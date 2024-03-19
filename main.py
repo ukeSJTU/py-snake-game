@@ -31,14 +31,13 @@ snake = Snake(
 )
 
 fps = pygame.time.Clock()
-snake_speed = 15
+snake_speed = 10
 
 
 def draw(surface: pygame.Surface, content: Union[Snake, Food]):
 
     if type(content) == Snake:
-        # draw content(snake) on surface
-
+        print(f"Draw Snake: {[block.color for block in content.body]}")
         for block in content.body:
             pygame.draw.rect(
                 surface,
@@ -100,6 +99,13 @@ def game_over():
     quit()
 
 
+def generate_new_food(food: Food):
+    # generate new food at random position without colliding with snake
+    food.next(screen_width, screen_height)
+
+    return
+
+
 food = Food(
     pos=(
         random.randrange(1, (screen_width // 10)) * 10,
@@ -145,7 +151,6 @@ while running:
 
     # update the snake body postion based on the direction
     snake.set_direction(new_snake_direction)
-    snake.move()
 
     # check if the snake has eaten the food
     # if yes, add the length of the snake and generate new food
@@ -158,6 +163,9 @@ while running:
         score += food.get_score()
         new_color = food.color
         snake.grow(color=new_color)
+        generate_new_food(food)
+    else:
+        snake.move()
 
     # update screen and draw the snake, food and background
     screen.fill(BLACK)
