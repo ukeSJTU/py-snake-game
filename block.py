@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple, Union, Literal
 from colors import *
 import random
+import itertools
 
 
 Positon = Tuple[int, int]
@@ -101,3 +102,85 @@ class Food(Block):
         self.color = self.COLOR_LIST[
             (self.COLOR_LIST.index(self.color) + 1) % len(self.COLOR_LIST)
         ]
+        self.score = 10 * (self.COLOR_LIST.index(self.color) + 1)
+
+
+# a class to monitor and control all the food in the game
+class FoodManager:
+
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        color_list: List[Color] = [WHITE, YELLOW, RED, ORANGE, BLUE, GREEN],
+        score_list: List[int] = [10, 20, 30, 40, 50, 60],
+        food_list: List[Food] = [],
+    ):
+        self.width = width
+        self.height = height
+
+        self.colors = self.__repeatable_generator(color_list)
+        self.scores = self.__repeatable_generator(score_list)
+        self.foods = food_list
+
+        self.color = self.__next_color()
+        self.score = self.__next_score()
+
+        self.food_cnt = len(self.foods)
+
+    def __repeatable_generator(self, iterable: List):
+        cycle_iterator = itertools.cycle(iterable)
+        while True:
+            yield next(cycle_iterator)
+
+    def generate(self):
+        new_position_x = random.randrange(1, (self.width // 10)) * 10
+        new_position_y = random.randrange(1, (self.height // 10)) * 10
+
+        _ = self.update()
+
+        new_food = Food(
+            pos=(new_position_x, new_position_y),
+            color=self.color,
+            score=self.score,
+            width=10,
+            height=10,
+        )
+        self.foods.append(new_food)
+        self.food_cnt += 1
+
+    def __next_color(self) -> Color:
+        self.color = next(self.colors)
+        return self.color
+
+    def __next_score(self) -> int:
+        self.score = next(self.scores)
+        return self.score
+
+    def update(self) -> Tuple[Color, int]:
+        return (self.__next_color(), self.__next_score())
+
+    def count(self) -> int:
+        return self.food_cnt
+
+    def get_pos(self, idx: Union[int, str] = "all") -> Union[Positon, List[Positon]]:
+        if idx == "all":
+            return [food.get_pos() for food in self.foods]
+        else:
+            return self.foods[idx].get_pos()
+
+    def get_food(self, idx: Union[int, str] = "all") -> Food:
+        if idx == "all":
+            return self.foods
+        else:
+            return self.foods[idx]
+
+    def remove(self, idx: int) -> None:
+        self.foods.pop(idx)
+        self.food_cnt -= 1
+
+
+class Wall:
+    def __init__(self, direction: Literal["Horizontal", "Vertical"]):
+        self.direction = direction
+        self.wall = []

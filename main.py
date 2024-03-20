@@ -5,10 +5,8 @@ import sys
 import time
 import random
 from colors import *
-
-# initialize the pygame
-pygame.init()
-pygame.font.init()
+from utils import *
+from block import FoodManager
 
 # set window size and name
 screen_width, screen_height = 800, 800
@@ -16,13 +14,23 @@ screen_width, screen_height = 800, 800
 # initial score
 score = 0
 
+# initial speed
+initial_snake_speed = 10
+
+window_caption = "USerName-蛇吃豆-UserID"
+
 
 init_snake_direction = "RIGHT"
 snake_direction = init_snake_direction
 change_to = snake_direction
 
+
+# initialize the pygame
+pygame.init()
+pygame.font.init()
+
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("UserName-蛇吃豆-UserID")
+pygame.display.set_caption(window_caption)
 
 snake = Snake(
     body=[
@@ -33,81 +41,19 @@ snake = Snake(
 )
 
 fps = pygame.time.Clock()
-snake_speed = 10
+
+food_manager = FoodManager(
+    # width=screen_width,
+    # height=screen_height,
+    width=400,
+    height=400,
+)
+food_manager.generate()
 
 
-def draw(surface: pygame.Surface, content: Union[Snake, Food]):
-
-    if type(content) == Snake:
-        print(f"Draw Snake: {[block.color for block in content.body]}")
-        for block in content.body:
-            pygame.draw.rect(
-                surface,
-                block.color,
-                (block.pos[0], block.pos[1], block.width, block.height),
-            )
-    elif type(content == Food):
-        pygame.draw.rect(
-            surface,
-            content.color,
-            (content.pos[0], content.pos[1], content.width, content.height),
-        )
-    return
-
-
-# displaying Score function
-def show_score(choice, color, font, size):
-
-    # creating font object score_font
-    score_font = pygame.font.SysFont(font, size)
-
-    # create the display surface object
-    # score_surface
-    score_surface = score_font.render("Score : " + str(score), True, color)
-
-    # create a rectangular object for the text
-    # surface object
-    score_rect = score_surface.get_rect()
-
-    # displaying text
-    screen.blit(score_surface, score_rect)
-
-
-def show_info(
-    screen, place, score: int, time_played: int, color: Tuple[int, int, int] = WHITE
-):
-    # show score and time played on the upperright corner (place)
-    font = pygame.font.SysFont("times new roman", 20)
-
-    score_text = f"Score: {score}"
-    score_surface = font.render(score_text, True, color)
-    score_rect = score_surface.get_rect()
-
-    time_text = f"Time Played: {time_played:.0f}s"
-    time_played_surface = font.render(time_text, True, color)
-    time_rect = time_played_surface.get_rect()
-
-    # Position the text surfaces based on 'place'
-    if place == "upperright":
-        score_rect.topright = (screen.get_width() - 10, 10)
-        time_rect.topright = (screen.get_width() - 10, 40)
-    elif place == "upperleft":
-        score_rect.topleft = (10, 10)
-        time_rect.topleft = (10, 40)
-    elif place == "lowerright":
-        score_rect.bottomright = (screen.get_width() - 10, screen.get_height() - 10)
-        time_rect.bottomright = (screen.get_width() - 10, screen.get_height() - 40)
-    elif place == "lowerleft":
-        score_rect.bottomleft = (10, screen.get_height() - 10)
-        time_rect.bottomleft = (10, screen.get_height() - 40)
-    else:
-        # Default to upperright if place is not recognized
-        score_rect.topright = (screen.get_width() - 10, 10)
-        time_rect.topright = (screen.get_width() - 10, 40)
-
-    # Blit the text surfaces onto the screen
-    screen.blit(score_surface, score_rect)
-    screen.blit(time_played_surface, time_rect)
+def generate_new_food(food: Food):
+    # generate new food at random position without colliding with snake
+    food.next(screen_width, screen_height)
 
 
 # game over function
@@ -136,6 +82,7 @@ def game_over(code: int):
     screen.blit(game_over_surface, game_over_rect)
     pygame.display.flip()
 
+    time.sleep(1)
     # deactivating pygame library
     pygame.quit()
 
@@ -143,23 +90,16 @@ def game_over(code: int):
     quit()
 
 
-def generate_new_food(food: Food):
-    # generate new food at random position without colliding with snake
-    food.next(screen_width, screen_height)
-
-    return
-
-
-food = Food(
-    pos=(
-        random.randrange(1, (screen_width // 10)) * 10,
-        random.randrange(1, (screen_height // 10)) * 10,
-    ),
-    color=WHITE,
-    width=10,
-    height=10,
-    score=10,
-)
+# eaten_food = Food(
+#     pos=(
+#         random.randrange(1, (screen_width // 10)) * 10,
+#         random.randrange(1, (screen_height // 10)) * 10,
+#     ),
+#     color=WHITE,
+#     width=10,
+#     height=10,
+#     score=10,
+# )
 
 running = True
 start_time = time.time()
@@ -217,14 +157,19 @@ while running:
     # if yes, add the length of the snake and generate new food
     # if no, do nothing
 
-    food_pos = food.get_pos()
+    food_pos = food_manager.get_pos(idx="all")
     snake_head_pos = snake.get_head_pos()
 
-    if snake_head_pos == food_pos:
-        score += food.get_score()
-        new_color = food.color
-        snake.grow(color=new_color)
-        generate_new_food(food)
+    is_food_eaten, idx = check_collision(pos_list_1=food_pos, pos_list_2=snake_head_pos)
+    if is_food_eaten:
+        eaten_food = food_manager.get_food(idx=idx[0] + idx[1] - 0)
+        score += eaten_food.get_score()
+        # new_color = food.color
+        print(f"Food id={idx[0] + idx[1] - 0} color={eaten_food.color}")
+        snake.grow(color=eaten_food.color)
+        food_manager.remove(idx=idx[0] + idx[1] - 0)
+        food_manager.generate()
+        # generate_new_food(food)
     else:
         snake.move()
 
@@ -232,7 +177,9 @@ while running:
     screen.fill(BLACK)
     draw(surface=screen, content=snake)
 
-    draw(surface=screen, content=food)
+    # draw(surface=screen, content=food)
+
+    draw(surface=screen, content=food_manager)
 
     snake_head_pos = snake.get_head_pos()
     # Game Over conditions
@@ -242,12 +189,11 @@ while running:
         game_over(0)
 
     # Touching the snake body
-    for block in snake.body[-2::-1]:
-        if snake_head_pos[0] == block.pos[0] and snake_head_pos[1] == block.pos[1]:
-            game_over(1)
-
-    # displaying score continuously
-    # show_score(1, WHITE, "times new roman", 20)
+    if check_collision(
+        pos_list_1=snake_head_pos,
+        pos_list_2=[block.pos for block in snake.body[-2::-1]],
+    )[0]:
+        game_over(1)
 
     show_info(
         screen=screen,
@@ -260,4 +206,6 @@ while running:
     pygame.display.update()
 
     # Frame Per Second /Refresh Rate
+    # increase snake speed 2 per minute after the first minute
+    snake_speed = initial_snake_speed + 2 / 60 * max(0, (time.time() - start_time - 1))
     fps.tick(snake_speed)
