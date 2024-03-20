@@ -5,6 +5,23 @@ import sys
 import time
 import random
 from colors import *
+import random
+
+
+def generate_position(grid_width, grid_height, std_dev_factor=0.15):
+
+    # Calculate mean and standard deviation
+    mean_x = grid_width / 2
+    mean_y = grid_height / 2
+    std_dev_x = grid_width * std_dev_factor
+    std_dev_y = grid_height * std_dev_factor
+
+    # Generate positions using a normal distribution
+    # Ensure the generated positions are within the grid boundaries
+    x_position = min(max(int(random.gauss(mean_x, std_dev_x)), 0), grid_width - 1)
+    y_position = min(max(int(random.gauss(mean_y, std_dev_y)), 0), grid_height - 1)
+
+    return x_position, y_position
 
 
 def draw(surface: pygame.Surface, content: Union[Snake, FoodManager, Food]) -> None:
@@ -84,6 +101,8 @@ def check_collision(
     pos_list_1: Union[Tuple[int, int], List[Tuple[int, int]]],
     pos_list_2: Union[Tuple[int, int], List[Tuple[int, int]]],
 ) -> Tuple[bool, Union[Tuple[int, int], None]]:
+    if pos_list_1 is None or pos_list_2 is None:
+        return (False, None)
     if type(pos_list_1) == tuple:
         pos_list_1 = [pos_list_1]
     if type(pos_list_2) == tuple:

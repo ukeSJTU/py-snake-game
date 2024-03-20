@@ -67,6 +67,9 @@ class Snake:
     def get_head_pos(self: "Snake") -> Positon:
         return self.head_pos
 
+    def get_all_pos(self: "Snake") -> List[Positon]:
+        return [block.pos for block in self.body]
+
     def grow(self: "Snake", color: Color = WHITE, width: int = 10, height: int = 10):
         self.isGrowing = True
         self.move()

@@ -42,16 +42,52 @@ snake = Snake(
 
 fps = pygame.time.Clock()
 
+
+def generate(content_type: Literal["food", "wall"], n: int = 1):
+    # generate n food or wall, if the generated position is not valid, regenerate
+
+    cnt = 1
+    if content_type == "food":
+        for _ in range(n):
+            while (
+                check_collision(
+                    pos_list_1=snake.get_all_pos(),
+                    pos_list_2=food_manager.get_pos(idx="all"),
+                )[0]
+                == False
+            ) and (cnt <= n):
+                food_manager.generate()
+                cnt += 1
+
+    elif content_type == "wall":
+        for _ in range(n):
+            while (
+                check_collision(
+                    pos_list_1=snake.get_all_pos(),
+                    pos_list_2=wall_controller.get_all_collision(),
+                )[0]
+                == False
+            ) and (cnt <= n):
+                wall_controller.add()
+                cnt += 1
+    else:
+        pass
+
+
 food_manager = FoodManager(
     # width=screen_width,
     # height=screen_height,
     width=400,
     height=400,
 )
-food_manager.generate()
+# food_manager.generate()
+generate(content_type="food", n=1)
 
 wall_controller = WallController(walls=None, width=screen_width, height=screen_height)
-wall_controller.add()
+
+
+# wall_controller.add()
+generate(content_type="wall", n=1)
 
 
 # game over function
@@ -156,7 +192,8 @@ while True:
         print(f"Food id={idx[0] + idx[1] - 0} color={eaten_food.color}")
         snake.grow(color=eaten_food.color)
         food_manager.remove(idx=idx[0] + idx[1] - 0)
-        food_manager.generate()
+        # food_manager.generate()
+        generate(content_type="food", n=1)
     else:
         snake.move()
 
@@ -199,7 +236,8 @@ while True:
 
     # generate a new wall every one minute
     if (time.time() - start_time) / 10 > wall_controller.count():
-        wall_controller.add()
+        # wall_controller.add()
+        generate(content_type="wall", n=1)
         # start_time = time.time()
 
     # Frame Per Second /Refresh Rate
