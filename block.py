@@ -181,6 +181,67 @@ class FoodManager:
 
 
 class Wall:
-    def __init__(self, direction: Literal["Horizontal", "Vertical"]):
+    def __init__(
+        self,
+        direction: Literal["Horizontal", "Vertical"],
+        pos: Positon,
+        width: int = None,
+        height: int = None,
+        color: Color = WHITE,
+    ):
         self.direction = direction
-        self.wall = []
+        self.pos = pos
+
+        if self.direction == "Horizontal":
+            self.width = width if width is not None else 50
+            self.height = height if height is not None else 10
+        elif self.direction == "Vertical":
+            self.width = width if width is not None else 10
+            self.height = height if height is not None else 50
+        else:
+            raise ValueError(
+                "Invalid direction value. Must be 'Horizontal' or 'Vertical'."
+            )
+
+        self.color = color
+
+        # the self.pos is the coordinate of the top-left corner of the wall
+        # calculate the coordinate of the bottom-right corner of the wall
+
+
+class WallController:
+    def __init__(self, walls: Union[List[Wall], None], width: int, height: int):
+        self.walls = [] if walls is None else walls
+        self.width = width
+        self.height = height
+
+    def __generate(
+        self, direction: Literal["Vertical", "Horizontal"] = None, pos: Positon = None
+    ) -> Wall:
+        if direction is None:
+            direction = random.choice(["Vertical", "Horizontal"])
+        if pos is None:
+            pos = (
+                random.randrange(1, (self.width // 10)) * 10,
+                random.randrange(1, (self.height // 10)) * 10,
+            )
+        wall = Wall(direction=direction, pos=pos)
+        return wall
+
+    def add(self, wall: Union[Wall, None] = None) -> None:
+        if wall is None:
+            wall = self.__generate()
+        self.walls.append(wall)
+        print(f"Wall added at {wall.pos}")
+
+    def remove(self, idx: int) -> None:
+        self.walls.pop(idx)
+
+    def get(self, idx: Union[int, str] = "all") -> Union[Wall, List[Wall]]:
+        if idx == "all":
+            return self.walls
+        else:
+            return self.walls[idx]
+
+    def count(self) -> int:
+        return len(self.walls)

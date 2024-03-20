@@ -6,7 +6,7 @@ import time
 import random
 from colors import *
 from utils import *
-from block import FoodManager
+from block import FoodManager, WallController
 
 # set window size and name
 screen_width, screen_height = 800, 800
@@ -50,10 +50,8 @@ food_manager = FoodManager(
 )
 food_manager.generate()
 
-
-def generate_new_food(food: Food):
-    # generate new food at random position without colliding with snake
-    food.next(screen_width, screen_height)
+wall_controller = WallController(walls=None, width=screen_width, height=screen_height)
+wall_controller.add()
 
 
 # game over function
@@ -90,20 +88,8 @@ def game_over(code: int):
     quit()
 
 
-# eaten_food = Food(
-#     pos=(
-#         random.randrange(1, (screen_width // 10)) * 10,
-#         random.randrange(1, (screen_height // 10)) * 10,
-#     ),
-#     color=WHITE,
-#     width=10,
-#     height=10,
-#     score=10,
-# )
-
-running = True
 start_time = time.time()
-while running:
+while True:
     # handling key events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -169,7 +155,6 @@ while running:
         snake.grow(color=eaten_food.color)
         food_manager.remove(idx=idx[0] + idx[1] - 0)
         food_manager.generate()
-        # generate_new_food(food)
     else:
         snake.move()
 
@@ -177,9 +162,9 @@ while running:
     screen.fill(BLACK)
     draw(surface=screen, content=snake)
 
-    # draw(surface=screen, content=food)
-
     draw(surface=screen, content=food_manager)
+
+    draw(surface=screen, content=wall_controller)
 
     snake_head_pos = snake.get_head_pos()
     # Game Over conditions
@@ -204,6 +189,11 @@ while running:
 
     # Refresh game screen
     pygame.display.update()
+
+    # generate a new wall every one minute
+    if (time.time() - start_time) / 10 > wall_controller.count():
+        wall_controller.add()
+        # start_time = time.time()
 
     # Frame Per Second /Refresh Rate
     # increase snake speed 2 per minute after the first minute

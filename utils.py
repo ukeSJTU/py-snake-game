@@ -1,5 +1,5 @@
 import pygame
-from block import Snake, Block, Food, FoodManager
+from block import Snake, Block, Food, FoodManager, WallController
 from typing import Union, Tuple, Literal, List
 import sys
 import time
@@ -28,6 +28,13 @@ def draw(surface: pygame.Surface, content: Union[Snake, FoodManager, Food]) -> N
                 surface,
                 food.color,
                 (food.pos[0], food.pos[1], food.width, food.height),
+            )
+    elif type(content) == WallController:
+        for wall in content.get(idx="all"):
+            pygame.draw.rect(
+                surface,
+                wall.color,
+                (wall.pos[0], wall.pos[1], wall.width, wall.height),
             )
     return
 
