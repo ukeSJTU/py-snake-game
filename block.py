@@ -205,8 +205,22 @@ class Wall:
 
         self.color = color
 
-        # the self.pos is the coordinate of the top-left corner of the wall
-        # calculate the coordinate of the bottom-right corner of the wall
+        self.calc_collision_detect_pos()
+
+    def calc_collision_detect_pos(self) -> None:
+        assert self.direction in ["Horizontal", "Vertical"], "Invalid direction value"
+
+        self.collision_detect_pos = []
+
+        if self.direction == "Horizontal":
+            for i in range(self.pos[0], self.pos[0] + self.width, 10):
+                self.collision_detect_pos.append((i, self.pos[1]))
+        elif self.direction == "Vertical":
+            for i in range(self.pos[1], self.pos[1] + self.height, 10):
+                self.collision_detect_pos.append((self.pos[0], i))
+
+    def get_collision_detect_pos(self) -> List[Positon]:
+        return self.collision_detect_pos
 
 
 class WallController:
@@ -245,3 +259,9 @@ class WallController:
 
     def count(self) -> int:
         return len(self.walls)
+
+    def get_all_collision(self) -> List[Tuple[Positon, Positon]]:
+        collision_detect_pos = []
+        for wall in self.walls:
+            collision_detect_pos.extend(wall.get_collision_detect_pos())
+        return collision_detect_pos

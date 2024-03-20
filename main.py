@@ -60,6 +60,8 @@ def game_over(code: int):
         print("Game Over because of collision with the wall")
     elif code == 1:
         print("Game Over because of collision with the snake body")
+    elif code == 2:
+        print("Game Over because of collision with the wall")
     else:
         pass
     # creating font object my_font
@@ -179,6 +181,11 @@ while True:
         pos_list_2=[block.pos for block in snake.body[-2::-1]],
     )[0]:
         game_over(1)
+
+    if check_collision(
+        pos_list_1=snake_head_pos, pos_list_2=wall_controller.get_all_collision()
+    )[0]:
+        game_over(2)
 
     show_info(
         screen=screen,
