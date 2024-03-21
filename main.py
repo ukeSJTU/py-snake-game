@@ -2,10 +2,9 @@ import pygame
 import sys
 import time
 
-from base_class import Block
 from colors import *
 from food import FoodController
-from utils import *
+from utils import show_info, check
 from wall import WallController
 from snake import Snake, SnakeBodyBlock
 
@@ -22,7 +21,7 @@ MAX_WALL_CNT = 1
 
 GENERATE_WALL_INTERVAL = 10  # seconds
 
-WINDOW_CAPTION = "USerName-蛇吃豆-UserID"
+WINDOW_CAPTION = "UserName-蛇吃豆-UserID"
 
 # init snake direction
 INIT_SNAKE_DIRECTION = "RIGHT"

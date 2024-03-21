@@ -1,6 +1,7 @@
 import pygame
 from typing import Union, Tuple, Literal, List
 import random
+
 from colors import *
 from type_alias import *
 

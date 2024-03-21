@@ -1,19 +1,17 @@
 from typing import List, Tuple, Union, Literal
-from colors import *
 import pygame
-from base_class import Block
-from type_alias import *
 
-Positon = Tuple[int, int]
-Color = Tuple[int, int, int]
+from base_class import Block
+from colors import *
+from type_alias import *
 
 
 class SnakeBodyBlock:
-    def __init__(self, pos: Positon, color: Color, width: int, height: int):
+    def __init__(self, pos: Position, color: Color, width: int, height: int):
         """Body block of the snake
 
         Args:
-            pos (Positon): position of the snake body block (px)
+            pos (Position): position of the snake body block (px)
             color (Color): color of the snake body block
             width (int): width of the snake body block (px)
             height (int): height of the snake body block (px)
@@ -110,25 +108,25 @@ class Snake:
         else:
             self.isGrowing = False
 
-    def get_head_pos(self: "Snake") -> Positon:
+    def get_head_pos(self: "Snake") -> Position:
         """Get the position of the snake's head
 
         Args:
             self (Snake): Snake object
 
         Returns:
-            Positon: position of the snake's head
+            Position: position of the snake's head
         """
         return self.head_pos
 
-    def get_all_pos(self: "Snake") -> List[Positon]:
+    def get_all_pos(self: "Snake") -> List[Position]:
         """Get the positions of all blocks in the snake's body
 
         Args:
             self (Snake): Snake object
 
         Returns:
-            List[Positon]: list of positions of all blocks in the snake's body
+            List[Position]: list of positions of all blocks in the snake's body
         """
         return [block.pos for block in self.body]
 

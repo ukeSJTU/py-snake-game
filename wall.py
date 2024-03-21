@@ -1,10 +1,11 @@
 from typing import List, Tuple, Union, Literal
 import random
 import pygame
-from utils import generate_position, check
+
+from base_class import Controller
 from colors import *
+from utils import generate_position, check
 from type_alias import *
-from base_class import Block, Controller
 
 
 class Wall:
