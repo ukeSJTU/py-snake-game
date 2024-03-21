@@ -154,3 +154,12 @@ class FoodController(Controller):
     def draw(self: "FoodController", screen: pygame.Surface):
         for food in self.foods:
             food.draw(screen)
+
+    def get_food_at_pos(self, pos: Position) -> Union[int, None]:
+        for idx in range(len(self.foods)):
+            if self.foods[idx].get_pos() == pos:
+                return idx
+        # for food in self.foods:
+        #     if food.get_pos() == pos:
+        #         return food
+        return None
