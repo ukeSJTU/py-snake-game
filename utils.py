@@ -67,28 +67,6 @@ def show_info(
     screen.blit(time_played_surface, time_rect)
 
 
-def check_collision(
-    pos_list_1: Union[Tuple[int, int], List[Tuple[int, int]]],
-    pos_list_2: Union[Tuple[int, int], List[Tuple[int, int]]],
-) -> Tuple[bool, Union[Position, None]]:
-    if pos_list_1 is None or pos_list_2 is None:
-        return (False, None)
-    if type(pos_list_1) == tuple:
-        pos_list_1 = [pos_list_1]
-    if type(pos_list_2) == tuple:
-        pos_list_2 = [pos_list_2]
-
-    # print(f"pos_list_1: {pos_list_1}")
-    # print(f"pos_list_2: {pos_list_2}")
-
-    for i in range(len(pos_list_1)):
-        for j in range(len(pos_list_2)):
-            if pos_list_1[i] == pos_list_2[j]:
-                return (True, (i, j))
-
-    return (False, None)
-
-
 def check(*lists):
     # print("check collision: ", lists)
     seen = set()
