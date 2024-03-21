@@ -1,13 +1,23 @@
 import pygame
 from typing import Union, Tuple, Literal, List
 import random
-
 from colors import *
 from type_alias import *
 
 
 def generate_position(grid_width, grid_height, std_dev_factor=0.15) -> Position:
+    """
+    Generates a random position within the grid boundaries.
+    The position is a multiple of 10.
 
+    Args:
+        grid_width (int): The width of the grid.
+        grid_height (int): The height of the grid.
+        std_dev_factor (float): The standard deviation factor for the normal distribution.
+
+    Returns:
+        Position: The generated position as a tuple of x and y coordinates.
+    """
     # Calculate mean and standard deviation
     mean_x = grid_width / 2
     mean_y = grid_height / 2
@@ -33,7 +43,16 @@ def show_info(
     place: displayPosition = "upperright",
     color: Tuple[int, int, int] = WHITE,
 ) -> None:
-    # show score and time played on the upperright corner (place)
+    """
+    Displays the score and time played on the screen.
+
+    Args:
+        screen (pygame.Surface): The surface to display the information on.
+        score (int): The current score.
+        time_played (int): The time played in seconds.
+        place (displayPosition): The position to display the information.
+        color (Tuple[int, int, int]): The color of the text.
+    """
     font = pygame.font.SysFont("times new roman", 20)
 
     score_text = f"Score: {score}"
@@ -68,6 +87,15 @@ def show_info(
 
 
 def check(*lists):
+    """
+    Checks for collisions between items in the given lists.
+
+    Args:
+        *lists: Variable number of lists containing items to check for collisions.
+
+    Returns:
+        bool: True if a collision is found, False otherwise.
+    """
     # print("check collision: ", lists)
     seen = set()
     for lst in lists:
