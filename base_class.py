@@ -47,11 +47,3 @@ class Controller(ABC):
     @abstractmethod
     def get(self, idx):
         pass
-
-    # @abstractmethod
-    # def remove(self, idx: int):
-    #     pass
-
-    # @abstractmethod
-    # def get_all_collision(self):
-    #     pass/

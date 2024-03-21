@@ -1,7 +1,6 @@
 from typing import List, Tuple, Union, Literal
 import random
 import pygame
-
 from utils import generate_position, check
 from colors import *
 from type_alias import *
@@ -45,6 +44,7 @@ class Wall:
         self.calc_collision_detect_pos()
 
     def calc_collision_detect_pos(self) -> None:
+        """Calculate the collision detection positions of the wall"""
         assert self.orientation in [
             "Horizontal",
             "Vertical",
@@ -60,9 +60,15 @@ class Wall:
                 self.collision_detect_pos.append((self.pos[0], i))
 
     def get_collision_detect_pos(self) -> List[Position]:
+        """Get the collision detection positions of the wall
+
+        Returns:
+            List[Position]: list of collision detection positions of the wall
+        """
         return self.collision_detect_pos
 
     def draw(self: "Wall", screen: pygame.Surface):
+        """Draw the wall on the screen"""
         pygame.draw.rect(
             screen,
             self.color,
@@ -84,12 +90,25 @@ class WallController(Controller):
         self.height = height
 
     def add(self, wall: Union[Wall, None] = None) -> None:
+        """Add a wall to the list of walls
+
+        Args:
+            wall (Union[Wall, None], optional): wall(s) to add to the wallcontroller. Defaults to None.
+        """
         if wall is None:
             wall = self.generate()
         self.walls.append(wall)
         print(f"Wall added at {wall.pos}")
 
     def generate(self, n: int = 1, *lists) -> Union[Wall, List[Wall]]:
+        """Generate and add new walls to the list of walls
+
+        Args:
+            n (int, optional): number of wall(s) to generate. Defaults to 1.
+
+        Returns:
+            Union[Wall, List[Wall]]: generated wall(s), a single wall if n=1, else a list of walls
+        """
         cnt = 1
         temp_wall_list = []
 
@@ -111,16 +130,17 @@ class WallController(Controller):
         return temp_wall_list[0] if n == 1 else temp_wall_list
 
     def remove(self, idx: int) -> None:
+        """Remove a wall from the list of walls"""
         self.walls.pop(idx)
 
     def get(self, idx: Union[int, str] = "all") -> Union[Wall, List[Wall]]:
-        """get method to get the wall object
+        """Get a wall from the list of walls
 
         Args:
-            idx (Union[int, str], optional): the index of wall to get or "all" to get all walls. Defaults to "all".
+            idx (Union[int, str], optional): the index of the wall. Defaults to "all".
 
         Returns:
-            Union[Wall, List[Wall]]: Wall object or list of Wall objects
+            Union[Wall, List[Wall]]: the wall at the specified index
         """
         if idx == "all":
             return self.walls
@@ -128,14 +148,21 @@ class WallController(Controller):
             return self.walls[idx]
 
     def count(self) -> int:
+        """Get the number of walls in the list"""
         return len(self.walls)
 
     def get_all_collision(self) -> List[Tuple[Position, Position]]:
+        """Get all collision detection positions of the walls
+
+        Returns:
+            List[Tuple[Position, Position]]: list of collision detection positions of the walls
+        """
         collision_detect_pos = []
         for wall in self.walls:
             collision_detect_pos.extend(wall.get_collision_detect_pos())
         return collision_detect_pos
 
     def draw(self: "WallController", screen: pygame.Surface):
+        """Draw all the walls on the screen"""
         for wall in self.walls:
             wall.draw(screen)
