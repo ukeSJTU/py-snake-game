@@ -6,7 +6,7 @@ import itertools
 from base_class import Block, Controller
 from utils import generate_position, check
 from colors import *
-from type_alias import Position, Color
+from type_alias import *
 
 
 class Food(Block):
@@ -87,7 +87,7 @@ class FoodController(Controller):
         print(f"Food added at {food.get_pos()}")
 
     def generate(self, n: int = 1, *lists) -> Union[Food, List[Food]]:
-        print(lists)
+        # print(lists)
 
         temp_food_list = []
         cnt = 1
@@ -159,7 +159,5 @@ class FoodController(Controller):
         for idx in range(len(self.foods)):
             if self.foods[idx].get_pos() == pos:
                 return idx
-        # for food in self.foods:
-        #     if food.get_pos() == pos:
-        #         return food
+
         return None

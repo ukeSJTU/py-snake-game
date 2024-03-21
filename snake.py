@@ -3,6 +3,7 @@ from colors import *
 import pygame
 
 from base_class import Block
+from type_alias import *
 
 
 Positon = Tuple[int, int]
@@ -33,7 +34,7 @@ class Snake:
     def __init__(
         self,
         body: List[SnakeBodyBlock],
-        direction: Literal["UP", "DOWN", "LEFT", "RIGHT"],
+        direction: Direction,
     ):
         self.body = body
         self.direction = direction
@@ -45,12 +46,10 @@ class Snake:
         # print(self.head_pos)
         # exit(1)
 
-    def get_direction(self: "Snake") -> Literal["UP", "DOWN", "LEFT", "RIGHT"]:
+    def get_direction(self: "Snake") -> Direction:
         return self.direction
 
-    def set_direction(
-        self: "Snake", direction: Literal["UP", "DOWN", "LEFT", "RIGHT"]
-    ) -> None:
+    def set_direction(self: "Snake", direction: Direction) -> None:
         self.direction = direction
 
     def move(self: "Snake", distance: int = 10):

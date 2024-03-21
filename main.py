@@ -178,15 +178,10 @@ while True:
         game_over(0)
 
     # Touching the snake body
-    if check_collision(
-        pos_list_1=snake_head_pos,
-        pos_list_2=[block.pos for block in snake.body[-2::-1]],
-    )[0]:
+    if check(snake_head_pos, [block.pos for block in snake.body[-2::-1]]):
         game_over(1)
 
-    if check_collision(
-        pos_list_1=snake_head_pos, pos_list_2=wall_controller.get_all_collision()
-    )[0]:
+    if check(snake_head_pos, wall_controller.get_all_collision()):
         game_over(2)
 
     show_info(

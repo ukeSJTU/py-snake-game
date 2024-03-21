@@ -3,7 +3,7 @@ from typing import Union, Tuple, Literal, List
 import random
 
 from colors import *
-from type_alias import Position, Color
+from type_alias import *
 
 
 def generate_position(grid_width, grid_height, std_dev_factor=0.15) -> Position:
@@ -30,7 +30,7 @@ def show_info(
     screen: pygame.Surface,
     score: int,
     time_played: int,
-    place: Literal["upperright", "upperleft", "lowerright", "lowerleft"] = "upperright",
+    place: displayPosition = "upperright",
     color: Tuple[int, int, int] = WHITE,
 ) -> None:
     # show score and time played on the upperright corner (place)
@@ -90,7 +90,7 @@ def check_collision(
 
 
 def check(*lists):
-    print("check collision: ", lists)
+    # print("check collision: ", lists)
     seen = set()
     for lst in lists:
         if type(lst) != list:
