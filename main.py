@@ -12,10 +12,13 @@ from snake import Snake, SnakeBodyBlock
 # set window size and name
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
 
-
 # initial speed
 INITIAL_SNAKE_SPEED = 10
 INITIAL_SNAKE_COLOR = WHITE
+
+# max fooc cnt, max wall cnt
+MAX_FOOD_CNT = 3
+MAX_WALL_CNT = 1
 
 GENERATE_WALL_INTERVAL = 10  # seconds
 
@@ -36,7 +39,6 @@ pygame.font.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption(WINDOW_CAPTION)
 
-
 snake = Snake(
     body=[
         SnakeBodyBlock(
@@ -55,20 +57,24 @@ snake = Snake(
     direction=INIT_SNAKE_DIRECTION,
 )
 
-fps = pygame.time.Clock()
-
+# generate food and wall
 food_controller = FoodController(
     width=SCREEN_WIDTH,
     height=SCREEN_HEIGHT,
 )
-food_controller.generate(1, snake.get_all_pos())
+food_controller.generate(MAX_FOOD_CNT, snake.get_all_pos())
 
 wall_controller = WallController(walls=None, width=SCREEN_WIDTH, height=SCREEN_HEIGHT)
-wall_controller.generate(1, food_controller.get_pos(), snake.get_all_pos())
+wall_controller.generate(MAX_WALL_CNT, food_controller.get_pos(), snake.get_all_pos())
 
 
 # game over function
 def game_over(code: int):
+    """game over function
+
+    Args:
+        code (int): 0: collision with the wall, 1: collision with the snake body, 2: collision with the wall
+    """
     if code == 0:
         print("Game Over because of collision with the wall")
     elif code == 1:
@@ -95,7 +101,7 @@ def game_over(code: int):
     screen.blit(game_over_surface, game_over_rect)
     pygame.display.flip()
 
-    _ = input("")
+    time.sleep(4)
     # deactivating pygame library
     pygame.quit()
 
@@ -103,9 +109,11 @@ def game_over(code: int):
     quit()
 
 
+# init time and tick settings
 start_time = time.time()
+fps = pygame.time.Clock()
+
 while True:
-    # handling key events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -147,9 +155,9 @@ while True:
             pass
 
     current_snake_direction = snake.get_direction()
-    # If two keys pressed simultaneously
-    # we don't want snake to move into two directions
-    # simultaneously
+    # here we handle the snake direction change:
+    # if the snake is moving in one direction,
+    # it cannot change to the opposite direction.
     if change_to == "UP" and current_snake_direction != "DOWN":
         new_snake_direction = "UP"
     if change_to == "DOWN" and current_snake_direction != "UP":
@@ -164,19 +172,23 @@ while True:
 
     # check if the snake has eaten the food
     # if yes, add the length of the snake and generate new food
-    # if no, do nothing
+    # if no, do nothing and just move the snake
 
     food_pos = food_controller.get_pos(idx="all")
     snake_head_pos = snake.get_head_pos()
 
     is_food_eaten = check(food_pos, snake_head_pos)
     if is_food_eaten:
+        # get the food eaten based on the index
         eaten_food_idx = food_controller.get_food_at_pos(pos=snake_head_pos)
         eaten_food = food_controller.get_food(idx=eaten_food_idx)
+
+        # update the score and grow the snake
         score += eaten_food.get_score()
         snake.grow(color=eaten_food.color)
-        food_controller.remove(idx=eaten_food_idx)
 
+        # remove the eaten food and generate a new one
+        food_controller.remove(idx=eaten_food_idx)
         food_controller.generate(
             1, snake.get_all_pos(), wall_controller.get_all_collision()
         )
@@ -189,8 +201,8 @@ while True:
     wall_controller.draw(screen=screen)
     snake.draw(screen=screen)
 
-    snake_head_pos = snake.get_head_pos()
     # Game Over conditions
+    snake_head_pos = snake.get_head_pos()
     if snake_head_pos[0] < 0 or snake_head_pos[0] > SCREEN_WIDTH - 10:
         game_over(0)
     if snake_head_pos[1] < 0 or snake_head_pos[1] > SCREEN_HEIGHT - 10:
@@ -213,11 +225,9 @@ while True:
     # Refresh game screen
     pygame.display.update()
 
-    # generate a new wall every one minute
+    # generate a new wall per GENERATE_WALL_INTERVAL
     if (time.time() - start_time) / GENERATE_WALL_INTERVAL > wall_controller.count():
         wall_controller.generate(1, food_controller.get_pos(), snake.get_all_pos())
-        # generate(content_type="wall", n=1)
-        # start_time = time.time()
 
     # Frame Per Second /Refresh Rate
     # increase snake speed 2 per minute after the first minute
