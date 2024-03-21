@@ -36,10 +36,21 @@ pygame.font.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption(WINDOW_CAPTION)
 
+
 snake = Snake(
     body=[
-        SnakeBodyBlock(pos=(390, 390), color=INITIAL_SNAKE_COLOR, width=10, height=10),
-        SnakeBodyBlock(pos=(400, 390), color=INITIAL_SNAKE_COLOR, width=10, height=10),
+        SnakeBodyBlock(
+            pos=(390, 390),
+            color=INITIAL_SNAKE_COLOR,
+            width=10,
+            height=10,
+        ),
+        SnakeBodyBlock(
+            pos=(400, 390),
+            color=INITIAL_SNAKE_COLOR,
+            width=10,
+            height=10,
+        ),
     ],
     direction=INIT_SNAKE_DIRECTION,
 )
@@ -84,7 +95,7 @@ def game_over(code: int):
     screen.blit(game_over_surface, game_over_rect)
     pygame.display.flip()
 
-    time.sleep(1)
+    _ = input("")
     # deactivating pygame library
     pygame.quit()
 
@@ -104,24 +115,32 @@ while True:
                 event.key == pygame.K_UP
                 or event.key == ord("w")
                 or event.key == ord("W")
+                or event.key == ord("k")
+                or event.key == ord("K")
             ):
                 change_to = "UP"
             if (
                 event.key == pygame.K_DOWN
                 or event.key == ord("s")
                 or event.key == ord("S")
+                or event.key == ord("j")
+                or event.key == ord("J")
             ):
                 change_to = "DOWN"
             if (
                 event.key == pygame.K_LEFT
                 or event.key == ord("a")
                 or event.key == ord("A")
+                or event.key == ord("h")
+                or event.key == ord("H")
             ):
                 change_to = "LEFT"
             if (
                 event.key == pygame.K_RIGHT
                 or event.key == ord("d")
                 or event.key == ord("D")
+                or event.key == ord("l")
+                or event.key == ord("L")
             ):
                 change_to = "RIGHT"
         else:

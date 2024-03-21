@@ -25,11 +25,6 @@ class SnakeBodyBlock:
         )
 
 
-# A new class for snake head and tail part
-# it basically is same with Block class
-# but its appearance change as it has a rounded-border style
-
-
 class Snake:
     def __init__(
         self,
@@ -42,9 +37,6 @@ class Snake:
         self.head_pos = self.body[-1].pos
 
         self.isGrowing = False
-
-        # print(self.head_pos)
-        # exit(1)
 
     def get_direction(self: "Snake") -> Direction:
         return self.direction
@@ -64,7 +56,10 @@ class Snake:
             self.head_pos = (self.head_pos[0] + distance, self.head_pos[1])
 
         new_snake_head = SnakeBodyBlock(
-            pos=self.head_pos, color=WHITE, width=10, height=10
+            pos=self.head_pos,
+            color=WHITE,
+            width=10,
+            height=10,
         )
         self.body.append(new_snake_head)
 
