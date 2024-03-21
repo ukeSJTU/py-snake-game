@@ -1,12 +1,13 @@
 import pygame
-from block import Snake, Block, Food
-from typing import Union, Tuple
 import sys
 import time
-import random
+
+from base_class import Block
 from colors import *
 from utils import *
-from block import FoodManager, WallController
+from food import FoodController
+from wall import WallController
+from snake import Snake, SnakeBodyBlock
 
 # set window size and name
 screen_width, screen_height = 800, 800
@@ -16,6 +17,9 @@ score = 0
 
 # initial speed
 initial_snake_speed = 10
+initial_snake_color = WHITE
+
+generate_new_wall_interval = 10  # seconds
 
 window_caption = "USerName-蛇吃豆-UserID"
 
@@ -34,8 +38,8 @@ pygame.display.set_caption(window_caption)
 
 snake = Snake(
     body=[
-        Block(pos=(390, 390), color=WHITE, width=10, height=10),
-        Block(pos=(400, 390), color=WHITE, width=10, height=10),
+        SnakeBodyBlock(pos=(390, 390), color=initial_snake_color, width=10, height=10),
+        SnakeBodyBlock(pos=(400, 390), color=initial_snake_color, width=10, height=10),
     ],
     direction=init_snake_direction,
 )
@@ -52,11 +56,11 @@ def generate(content_type: Literal["food", "wall"], n: int = 1):
             while (
                 check_collision(
                     pos_list_1=snake.get_all_pos(),
-                    pos_list_2=food_manager.get_pos(idx="all"),
+                    pos_list_2=food_controller.get_pos(idx="all"),
                 )[0]
                 == False
             ) and (cnt <= n):
-                food_manager.generate()
+                food_controller.generate()
                 cnt += 1
 
     elif content_type == "wall":
@@ -74,20 +78,20 @@ def generate(content_type: Literal["food", "wall"], n: int = 1):
         pass
 
 
-food_manager = FoodManager(
-    # width=screen_width,
-    # height=screen_height,
-    width=400,
-    height=400,
+food_controller = FoodController(
+    width=screen_width,
+    height=screen_height,
 )
 # food_manager.generate()
-generate(content_type="food", n=1)
+# generate(content_type="food", n=1)
+food_controller.generate(1, snake.get_all_pos())
 
 wall_controller = WallController(walls=None, width=screen_width, height=screen_height)
+wall_controller.generate(1, food_controller.get_pos(), snake.get_all_pos())
 
 
 # wall_controller.add()
-generate(content_type="wall", n=1)
+# generate(content_type="wall", n=1)
 
 
 # game over function
@@ -181,29 +185,30 @@ while True:
     # if yes, add the length of the snake and generate new food
     # if no, do nothing
 
-    food_pos = food_manager.get_pos(idx="all")
+    food_pos = food_controller.get_pos(idx="all")
     snake_head_pos = snake.get_head_pos()
 
     is_food_eaten, idx = check_collision(pos_list_1=food_pos, pos_list_2=snake_head_pos)
     if is_food_eaten:
-        eaten_food = food_manager.get_food(idx=idx[0] + idx[1] - 0)
+        eaten_food = food_controller.get_food(idx=idx[0] + idx[1] - 0)
         score += eaten_food.get_score()
         # new_color = food.color
         print(f"Food id={idx[0] + idx[1] - 0} color={eaten_food.color}")
         snake.grow(color=eaten_food.color)
-        food_manager.remove(idx=idx[0] + idx[1] - 0)
+        food_controller.remove(idx=idx[0] + idx[1] - 0)
         # food_manager.generate()
-        generate(content_type="food", n=1)
+        # generate(content_type="food", n=1)
+        food_controller.generate(
+            1, snake.get_all_pos(), wall_controller.get_all_collision()
+        )
     else:
         snake.move()
 
     # update screen and draw the snake, food and background
     screen.fill(BLACK)
-    draw(surface=screen, content=snake)
-
-    draw(surface=screen, content=food_manager)
-
-    draw(surface=screen, content=wall_controller)
+    food_controller.draw(screen=screen)
+    wall_controller.draw(screen=screen)
+    snake.draw(screen=screen)
 
     snake_head_pos = snake.get_head_pos()
     # Game Over conditions
@@ -235,9 +240,11 @@ while True:
     pygame.display.update()
 
     # generate a new wall every one minute
-    if (time.time() - start_time) / 10 > wall_controller.count():
-        # wall_controller.add()
-        generate(content_type="wall", n=1)
+    if (
+        time.time() - start_time
+    ) / generate_new_wall_interval > wall_controller.count():
+        wall_controller.generate(1, food_controller.get_pos(), snake.get_all_pos())
+        # generate(content_type="wall", n=1)
         # start_time = time.time()
 
     # Frame Per Second /Refresh Rate

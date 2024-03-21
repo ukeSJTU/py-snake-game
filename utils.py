@@ -1,14 +1,12 @@
 import pygame
-from block import Snake, Block, Food, FoodManager, WallController
 from typing import Union, Tuple, Literal, List
-import sys
-import time
 import random
+
 from colors import *
-import random
+from type_alias import Position, Color
 
 
-def generate_position(grid_width, grid_height, std_dev_factor=0.15):
+def generate_position(grid_width, grid_height, std_dev_factor=0.15) -> Position:
 
     # Calculate mean and standard deviation
     mean_x = grid_width / 2
@@ -21,39 +19,11 @@ def generate_position(grid_width, grid_height, std_dev_factor=0.15):
     x_position = min(max(int(random.gauss(mean_x, std_dev_x)), 0), grid_width - 1)
     y_position = min(max(int(random.gauss(mean_y, std_dev_y)), 0), grid_height - 1)
 
-    return x_position, y_position
+    # the position should be a multiple of 10
+    x_position = x_position - (x_position % 10)
+    y_position = y_position - (y_position % 10)
 
-
-def draw(surface: pygame.Surface, content: Union[Snake, FoodManager, Food]) -> None:
-    if type(content) == Snake:
-        # print(f"Draw Snake: {[block.color for block in content.body]}")
-        for block in content.body:
-            pygame.draw.rect(
-                surface,
-                block.color,
-                (block.pos[0], block.pos[1], block.width, block.height),
-            )
-    elif type(content) == Food:
-        pygame.draw.rect(
-            surface,
-            content.color,
-            (content.pos[0], content.pos[1], content.width, content.height),
-        )
-    elif type(content) == FoodManager:
-        for food in content.get_food(idx="all"):
-            pygame.draw.rect(
-                surface,
-                food.color,
-                (food.pos[0], food.pos[1], food.width, food.height),
-            )
-    elif type(content) == WallController:
-        for wall in content.get(idx="all"):
-            pygame.draw.rect(
-                surface,
-                wall.color,
-                (wall.pos[0], wall.pos[1], wall.width, wall.height),
-            )
-    return
+    return (x_position, y_position)
 
 
 def show_info(
@@ -100,7 +70,7 @@ def show_info(
 def check_collision(
     pos_list_1: Union[Tuple[int, int], List[Tuple[int, int]]],
     pos_list_2: Union[Tuple[int, int], List[Tuple[int, int]]],
-) -> Tuple[bool, Union[Tuple[int, int], None]]:
+) -> Tuple[bool, Union[Position, None]]:
     if pos_list_1 is None or pos_list_2 is None:
         return (False, None)
     if type(pos_list_1) == tuple:
@@ -117,3 +87,18 @@ def check_collision(
                 return (True, (i, j))
 
     return (False, None)
+
+
+def check(*lists):
+    print("check collision: ", lists)
+    seen = set()
+    for lst in lists:
+        if type(lst) != list:
+            lst = [lst]
+        for item in lst:
+            if len(item) == 0:
+                continue
+            if item in seen:
+                return True  # A collision is found
+            seen.add(tuple(item))
+    return False  # No collisions were found
