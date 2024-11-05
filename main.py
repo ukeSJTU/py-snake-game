@@ -41,24 +41,30 @@ async def game_over(screen, code: int, score: int):
 
     my_font = pygame.font.SysFont("times new roman", 50)
     game_over_surface = my_font.render("Your Score is : " + str(score), True, RED)
+    restart_surface = my_font.render("Press SPACE to restart", True, RED)
+
     game_over_rect = game_over_surface.get_rect()
+    restart_rect = restart_surface.get_rect()
+
     game_over_rect.midtop = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
+    restart_rect.midtop = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3)
+
     screen.blit(game_over_surface, game_over_rect)
+    screen.blit(restart_surface, restart_rect)
     pygame.display.flip()
 
-    await asyncio.sleep(4)
-    pygame.quit()
-    sys.exit()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return True  # Return True to indicate restart
+        await asyncio.sleep(0.1)
 
 
-async def main():
-    # initialize the pygame
-    pygame.init()
-    pygame.font.init()
-
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption(WINDOW_CAPTION)
-
+async def game_loop(screen):
     # init snake direction
     snake_direction = "RIGHT"
     change_to = snake_direction
@@ -66,18 +72,6 @@ async def main():
 
     # initial score
     score = 0
-
-    # Function to display hints
-    def show_hints(screen):
-        font = pygame.font.SysFont("times new roman", 20)
-        hints = [
-            "Use arrow keys or WASD to move the snake.",
-            "Press SPACE to restart the game.",
-        ]
-        for i, hint in enumerate(hints):
-            hint_surface = font.render(hint, True, WHITE)
-            hint_rect = hint_surface.get_rect(topleft=(10, 10 + i * 25))
-            screen.blit(hint_surface, hint_rect)
 
     snake = Snake(
         body=[
@@ -98,10 +92,13 @@ async def main():
     )
 
     # generate food and wall
+    # Create a new FoodController instance for each game
     food_controller = FoodController(
         width=SCREEN_WIDTH,
         height=SCREEN_HEIGHT,
+        food_list=[],  # Explicitly start with an empty food list
     )
+    # Generate initial food
     food_controller.generate(MAX_FOOD_CNT, snake.get_all_pos())
 
     wall_controller = WallController(
@@ -186,21 +183,37 @@ async def main():
         snake.draw(screen=screen)
 
         # Show hints
-        show_hints(screen)
+        font = pygame.font.SysFont("times new roman", 20)
+        hints = [
+            "Use arrow keys or WASD to move the snake.",
+            "Press SPACE to restart the game.",
+        ]
+        for i, hint in enumerate(hints):
+            hint_surface = font.render(hint, True, WHITE)
+            hint_rect = hint_surface.get_rect(topleft=(10, 10 + i * 25))
+            screen.blit(hint_surface, hint_rect)
 
         # Game Over conditions
         snake_head_pos = snake.get_head_pos()
         if snake_head_pos[0] < 0 or snake_head_pos[0] > SCREEN_WIDTH - 10:
-            await game_over(screen, 0, score)
+            should_restart = await game_over(screen, 0, score)
+            if should_restart:
+                return
         if snake_head_pos[1] < 0 or snake_head_pos[1] > SCREEN_HEIGHT - 10:
-            await game_over(screen, 0, score)
+            should_restart = await game_over(screen, 0, score)
+            if should_restart:
+                return
 
         # Touching the snake body
         if check(snake_head_pos, [block.pos for block in snake.body[-2::-1]]):
-            await game_over(screen, 1, score)
+            should_restart = await game_over(screen, 1, score)
+            if should_restart:
+                return
 
         if check(snake_head_pos, wall_controller.get_all_collision()):
-            await game_over(screen, 2, score)
+            should_restart = await game_over(screen, 2, score)
+            if should_restart:
+                return
 
         show_info(
             screen=screen,
@@ -226,6 +239,18 @@ async def main():
 
         # Required for web environment
         await asyncio.sleep(0)
+
+
+async def main():
+    # initialize the pygame
+    pygame.init()
+    pygame.font.init()
+
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption(WINDOW_CAPTION)
+
+    while True:
+        await game_loop(screen)
 
 
 if __name__ == "__main__":
