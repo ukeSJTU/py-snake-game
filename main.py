@@ -67,6 +67,18 @@ async def main():
     # initial score
     score = 0
 
+    # Function to display hints
+    def show_hints(screen):
+        font = pygame.font.SysFont("times new roman", 20)
+        hints = [
+            "Use arrow keys or WASD to move the snake.",
+            "Press SPACE to restart the game.",
+        ]
+        for i, hint in enumerate(hints):
+            hint_surface = font.render(hint, True, WHITE)
+            hint_rect = hint_surface.get_rect(topleft=(10, 10 + i * 25))
+            screen.blit(hint_surface, hint_rect)
+
     snake = Snake(
         body=[
             SnakeBodyBlock(
@@ -172,6 +184,9 @@ async def main():
         food_controller.draw(screen=screen)
         wall_controller.draw(screen=screen)
         snake.draw(screen=screen)
+
+        # Show hints
+        show_hints(screen)
 
         # Game Over conditions
         snake_head_pos = snake.get_head_pos()
